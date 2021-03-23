@@ -1,2 +1,3 @@
 #! /usr/bin/env node
-console.log("Welcome to the k-cli");
+const cliFile = require('./cli')
+const cli = new cliFile.Cli();
