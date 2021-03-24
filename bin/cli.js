@@ -1,16 +1,6 @@
 const arg = require('arg');
 const inquirer = require('inquirer');
 
-const version = require('./commands/version');
-const helper = require('./commands/helper');
-const create = require('./commands/create');
-
-const commands = {
-  "versions":version.list,
-  "version":helper.version,
-  "help":helper.help,
-}
-
 module.exports = {
   Cli: class{
     constructor(){
@@ -26,14 +16,13 @@ module.exports = {
         }
       );
       this.options = options;
-      if (this.commands[this.argv[0]].description) { console.log(this.commands[this.argv[0]].description+'\n'); }
+      // if (this.commands[this.argv[0]].description) { console.log(this.commands[this.argv[0]].description+'\n'); }
       this.commands[this.argv[0]].handler(this.argv,this.options);
     }
 
     argv = [];
     options = {};
 
-    commands=commands
+    commands=process.global.commands
   },
-  commands
 }
