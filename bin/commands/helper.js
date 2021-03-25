@@ -8,40 +8,43 @@ function getLocalConfig(){
     let configJson = require(configPath);
     return configJson.version ?? 'something went wrong'
   }else{
-    return 'Not Detected'
+    return 'not Detected'
   }
 }
 
 module.exports = {
   help:{
-    description:"K-cli help",
+    description:"information about k-cli",
     handler:(argv,options)=>{
-      let tableData = [
-        ['Commands','',''],
-        ['name','usage','description'],
-        ['','','']
-      ]; 
-
+      console.log('commands :\n');
+      let tableData = []; 
       Object.keys(process.global.commands).forEach(command=>{
+        let options = ' '
+        if (process.global.commands[command].options) {
+          options = '';
+          Object.keys(process.global.commands[command].options).forEach(optKey=>{
+            options += optKey+' ';
+          })
+        }
+
         tableData.push([
           command,
-          'usage',
-          'descriptipn'
+          process.global.commands[command].usage??' ',
+          options.length == 0 ? ' ' : options,
+          process.global.commands[command].description??' ',
         ])
       })
-
       console.log(process.global.table(tableData));
+      console.log("for more information : https://github.com/Fyrok1/k-cli");
     },
   },
   version:{
+    description:"k-cli version",
     handler:()=>{
-      let msg = 
-      'Versions\n'+
+      console.log('versions\n'+
       '\n'+
-      'K-Cli: '+pjson.version+'\n'+
-      'Local: '+ (getLocalConfig())
-
-      console.log(msg.trim());
+      'k-cli: '+pjson.version+'\n'+
+      'local: '+ (getLocalConfig()));
     }
   },
   getLocalConfig

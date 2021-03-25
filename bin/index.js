@@ -3,10 +3,11 @@ const { table , getBorderCharacters } = require('table')
 
 const version = require('./commands/version');
 const helper = require('./commands/helper');
-const create = require('./commands/create');
+const generate = require('./commands/generate');
 
 process.global = {
   commands:{
+    "generate":generate.generate,
     "versions":version.list,
     "version":helper.version,
     "help":helper.help,
@@ -34,6 +35,9 @@ process.global = {
         }
       }
     })
+  },
+  commandHelper:(command)=>{
+    console.log('command helper');
   }
 }
 
