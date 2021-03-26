@@ -55,17 +55,19 @@ module.exports = {
         .then(raw=>{
           let filename = path.basename(argv._variables.path).replace(/\b\w/g, l => l.toUpperCase())
           let content = process.global.replace(raw,{
-            name:filename
+            nameUpperCase:filename,
+            name:filename.toLowerCase()
           })
           let filepath = ''
+          filename = filename.toLowerCase()
           switch (argv._variables.type) {
             case 'controller':
               filepath = './src/controllers/'+filename+'.controller.ts'
               break;
-            case 'model':
+            case 'router':
               filepath = './src/web/routers/'+filename+'.router.ts'
               break;
-            case 'router':
+            case 'model':
               filepath = './src/models/'+filename+'.model.ts'
               break;
           }
