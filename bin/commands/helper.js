@@ -1,29 +1,19 @@
 const pjson = require('../../package.json');
-const fs = require('fs')
-const { table , getBorderCharacters } = require('table')
-
-function getLocalConfig(){
-  let configPath = process.cwd()+'/k.json'
-  if (fs.existsSync(configPath)) {
-    let configJson = require(configPath);
-    return configJson.version ?? 'something went wrong'
-  }else{
-    return 'not Detected'
-  }
-}
 
 module.exports = {
   help:{
     description:"information about k-cli",
     handler:(argv,options)=>{
-      console.log('commands :\n');
       let tableData = []; 
       Object.keys(process.global.commands).forEach(command=>{
         let options = ' '
         if (process.global.commands[command].options) {
           options = '';
-          Object.keys(process.global.commands[command].options).forEach(optKey=>{
-            options += optKey+' ';
+          process.global.commands[command].options.forEach(opt=>{
+            options += '--'+opt.name+' ';
+            if (opt.short) {
+              options += '-'+opt.short+' ';
+            }
           })
         }
 
@@ -41,11 +31,9 @@ module.exports = {
   version:{
     description:"k-cli version",
     handler:()=>{
-      console.log('versions\n'+
-      '\n'+
+      console.log(
       'k-cli: '+pjson.version+'\n'+
-      'local: '+ (getLocalConfig()));
+      'local: '+ (process.global.local ? process.global.local.version : 'not detected'));
     }
-  },
-  getLocalConfig
+  }
 }
