@@ -147,9 +147,9 @@ process.global = {
   clearTmpFolders:()=>{
     if (fs.existsSync(process.global.tmpPath)) {
       process.global.tmpFolders.forEach(dir=>{
-        // setTimeout(() => {
+        if (fs.existsSync(dir)) {
           rimraf.sync(dir);
-        // }, 5000);
+        }
       })
     }
   },
@@ -185,5 +185,9 @@ const cliFile = require('./cli')
 const cli = new cliFile.Cli();
 
 process.on('beforeExit', (code) => {
+  process.global.clearTmpFolders();
+});
+
+process.on('exit', (code) => {
   process.global.clearTmpFolders();
 });

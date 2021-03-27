@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const fse = require('fs-extra')
 const fetch = require('node-fetch')
 const inquirer = require('inquirer');
 var AdmZip = require('adm-zip');
@@ -61,7 +62,9 @@ module.exports = {
               console.log('copying...');
               let projectPath = path.join(path.resolve(),argv._variables.projectName)
               fs.mkdirSync(projectPath)
-              fs.renameSync(unzipPath,projectPath)
+              // fs.chmodSync(projectPath,777);
+              // fs.copySync
+              fse.copySync(unzipPath,projectPath)
               console.log('project created to '+projectPath);
               console.log(`do not forget '$ npm i' before starting`);
             });
