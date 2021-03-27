@@ -1,19 +1,27 @@
 #! /usr/bin/env node
 const { table , getBorderCharacters } = require('table')
 const fs = require('fs');
+const path = require('path');
+const fetch = require('node-fetch');
+const rimraf = require("rimraf");
 
 const version = require('./commands/version');
 const helper = require('./commands/helper');
 const generate = require('./commands/generate');
+const start = require('./commands/start');
 
 process.global = {
+  rootPath:path.join(__dirname,'../'),
+  tmpPath:path.join(__dirname,'../tmp'),
   commands:{
+    "new":start.new,
     "generate":generate.generate,
     "versions":version.list,
     "version":helper.version,
     "help":helper.help,
   },
   local:false,
+  tmpFolders:[],
   table:(tableData=[],options={})=>{
     return table(tableData,{
       ...options,
@@ -39,7 +47,6 @@ process.global = {
     })
   },
   commandHelper:(command)=>{
-    console.log(command);
     if (command.description) {
       console.log(command.description+'\n');
     }
@@ -63,8 +70,8 @@ process.global = {
         }
         variableTableData.push([
           key??' ',
-          detail??' ',
           variable.description ?? ' ',
+          detail??' ',
         ])
       })
       if (variableTableData.length > 0) {
@@ -107,7 +114,11 @@ process.global = {
             throw new Error('unexpected '+variableKey+' : '+val)
           }
         }else{
-          _variables[variableKey] = val
+          if (val == undefined) {
+            throw new Error(`${variableKey} can't be undefined`)
+          }else{
+            _variables[variableKey] = val
+          }
         }
       })
     }
@@ -118,6 +129,51 @@ process.global = {
       text=text.replace(new RegExp('\\$'+key+'\\$','g'),values[key])
     })
     return text;
+  },
+  createTmpFolder:()=>{
+    let folder = process.global.randomText(15);
+    let dir = path.join(process.global.tmpPath,folder)
+    
+    if (!fs.existsSync(process.global.tmpPath)) {
+      fs.mkdirSync(process.global.tmpPath)
+    }
+    
+    if (!fs.existsSync(dir)){
+      process.global.tmpFolders.push(dir);
+      fs.mkdirSync(dir);
+    }
+    return dir;
+  },
+  clearTmpFolders:()=>{
+    if (fs.existsSync(process.global.tmpPath)) {
+      process.global.tmpFolders.forEach(dir=>{
+        // setTimeout(() => {
+          rimraf.sync(dir);
+        // }, 5000);
+      })
+    }
+  },
+  randomText:(length=10)=>{
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  },
+  getVersions:(handler)=>{
+    fetch('https://api.github.com/repos/fyrok1/k/branches')
+    .then(res=>res.json())
+    .then(json=>{
+      let v = []
+      json.forEach(branch=>{
+        if (!isNaN(parseInt(branch.name[0]))) {
+          v.push(branch.name)
+        }
+      })
+      handler(v)
+    })
   }
 }
 
@@ -127,3 +183,7 @@ if (fs.existsSync(process.cwd()+'/k.json')) {
 
 const cliFile = require('./cli')
 const cli = new cliFile.Cli();
+
+process.on('beforeExit', (code) => {
+  process.global.clearTmpFolders();
+});

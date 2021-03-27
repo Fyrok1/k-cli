@@ -41,25 +41,24 @@ module.exports = {
         ]
       }
     },
-    builder:function(argv,options){
+    builder:function(argv,options,next){
       if (process.global.local) {
-        return true
+        next(argv,options)
       }else{
-        console.log('local project not detected');
-        return false;
+        throw new Error('local project not detected')
       }
     },
     handler:function(argv,options){
       fetch(`https://raw.githubusercontent.com/Fyrok1/k/${process.global.local.version}/generate/${argv._variables.type}`)
         .then(res=>res.text())
         .then(raw=>{
-          let filename = path.basename(argv._variables.path).replace(/\b\w/g, l => l.toUpperCase())
+          let filename = path.basename(argv._variables.path)
           let content = process.global.replace(raw,{
-            nameUpperCase:filename,
-            name:filename.toLowerCase()
+            capitalizeName:filename.replace(/\b\w/g, l => l.toUpperCase()),
+            name:filename
           })
           let filepath = ''
-          filename = filename.toLowerCase()
+          filename = filename
           switch (argv._variables.type) {
             case 'controller':
               filepath = './src/controllers/'+filename+'.controller.ts'

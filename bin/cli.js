@@ -8,9 +8,10 @@ module.exports = {
         this.argv = process.argv.slice(2);
         this.argv[0] = this.findCommand()
 
-        this.ready().then(()=>{}).catch((err)=>{console.log(err)})
+        this.ready()
       } catch (error) {
-        console.log(error.toString());
+        console.log(error);
+        // console.log(error.toString());
         console.log("Run 'k-cli help' for information or visit https://github.com/Fyrok1/k-cli")
       }
     }
@@ -19,7 +20,7 @@ module.exports = {
     options = {};
     commands=process.global.commands
 
-    async ready(){
+    ready(){
       let command = this.commands[this.argv[0]];
       let parsedOptions = {}
       if (command.options) {
@@ -38,14 +39,18 @@ module.exports = {
       this.argv = this.argv.filter(arg => !(arg.trim().startsWith('-')));
       // if (this.commands[this.argv[0]].description) { console.log(this.commands[this.argv[0]].description+'\n'); }
       
-      if (command.variables) {
-        this.argv['_variables'] = process.global.variableBuilder(command,this.argv,this.options)
-      }
-
       if (options['--help'] && command.help != undefined) {
         command.help(this.argv,this.options)
-      }else if (command.builder == undefined || await command.builder()) {
-        command.handler(this.argv,this.options);
+      }else{
+        if (command.variables) {
+          this.argv['_variables'] = process.global.variableBuilder(command,this.argv,this.options)
+        }
+
+        if (command.builder != undefined) {
+          command.builder(this.argv,this.options,command.handler)
+        }else{
+          command.handler(this.argv,this.options)
+        }
       }
     }
 

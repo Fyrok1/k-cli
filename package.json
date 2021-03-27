@@ -12,9 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "adm-zip": "^0.5.4",
     "arg": "^5.0.0",
     "inquirer": "^8.0.0",
     "node-fetch": "^2.6.1",
+    "rimraf": "^3.0.2",
     "table": "^6.0.7"
   }
 }
