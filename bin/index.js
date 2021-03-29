@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+require('dotenv').config()
 const { table , getBorderCharacters } = require('table')
 const fs = require('fs');
 const path = require('path');
@@ -16,6 +17,7 @@ process.global = {
   commands:{
     "new":start.new,
     "generate":generate.generate,
+    "change-version":version.change,
     "versions":version.list,
     "version":helper.version,
     "help":helper.help,
@@ -172,7 +174,11 @@ process.global = {
           v.push(branch.name)
         }
       })
-      handler(v)
+      try {
+        handler(v)
+      } catch (error) {
+        console.log(process.env.NODE_ENV == 'development' ? error : error.toString());
+      }
     })
   }
 }

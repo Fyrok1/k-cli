@@ -30,7 +30,19 @@ module.exports = {
       if (argv._variables.projectName.search(/(\/|\\)/g) != -1) {
         throw new Error('projectName can not be a path')
       }else if(fs.existsSync(path.join(path.resolve(),argv._variables.projectName))){
-        throw new Error('folder already exist')
+        var prompt = inquirer.createPromptModule();
+        prompt({
+          type:"confirm",
+          name:'isClearDirectory',
+          message:`already a folder named ${argv._variables.projectName}. clear directory and continue`,
+          default:false
+        }).then((answer)=>{
+          if (answer.isClearDirectory) {
+            rimraf.sync(path.join(path.resolve(),argv._variables.projectName))
+            next(argv,options)
+          }
+        })
+        // throw new Error('folder already exist')
       }else{
         next(argv,options)
       }
@@ -40,10 +52,11 @@ module.exports = {
         var prompt = inquirer.createPromptModule();
         prompt({
           type:'list',
-          name:"select version",
+          name:"version",
+          message:"select version",
           choices:versions
         }).then((answer)=>{
-          let version = answer["select version"]
+          let version = answer["version"]
           fetch(`https://github.com/Fyrok1/k/archive/refs/heads/${version}.zip`)
           .then(res => {
             let dir = process.global.createTmpFolder();
@@ -56,14 +69,12 @@ module.exports = {
               zip.extractAllTo(path.join(dir,'unzip/'),true);
               console.log('preparing...');
               rimraf.sync(zipPath)
-              let unzipPath = path.join(dir,'unzip/k-0.0.1');
+              let unzipPath = path.join(dir,'unzip/k-'+version);
               fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
               rimraf.sync(path.join(unzipPath,'/generate'));
               console.log('copying...');
               let projectPath = path.join(path.resolve(),argv._variables.projectName)
               fs.mkdirSync(projectPath)
-              // fs.chmodSync(projectPath,777);
-              // fs.copySync
               fse.copySync(unzipPath,projectPath)
               console.log('project created to '+projectPath);
               console.log(`do not forget '$ npm i' before starting`);

@@ -10,8 +10,7 @@ module.exports = {
 
         this.ready()
       } catch (error) {
-        console.log(error);
-        // console.log(error.toString());
+        console.log(process.env.NODE_ENV == 'development' ? error : error.toString());
         console.log("Run 'k-cli help' for information or visit https://github.com/Fyrok1/k-cli")
       }
     }
