@@ -174,7 +174,11 @@ process.global = {
           v.push(branch.name)
         }
       })
+      v = v.map( a => a.split('.').map( n => +n+100000 ).join('.') ).sort().map( a => a.split('.').map( n => +n-100000 ).join('.') ).reverse();
       try {
+        if (v.length == 0) {
+          throw new Error('no version available right now')
+        }
         handler(v)
       } catch (error) {
         console.log(process.env.NODE_ENV == 'development' ? error : error.toString());

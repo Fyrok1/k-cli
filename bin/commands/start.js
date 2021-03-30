@@ -16,6 +16,12 @@ module.exports = {
         constructure:Boolean,
         short:'h',
         description:'show command details'
+      },
+      {
+        name:'version',
+        constructure:String,
+        short:'v',
+        description:'project version'
       }
     ],
     variables:{
@@ -27,62 +33,64 @@ module.exports = {
       }
     },
     builder:function(argv,options,next){
-      if (argv._variables.projectName.search(/(\/|\\)/g) != -1) {
-        throw new Error('projectName can not be a path')
-      }else if(fs.existsSync(path.join(path.resolve(),argv._variables.projectName))){
-        var prompt = inquirer.createPromptModule();
-        prompt({
-          type:"confirm",
-          name:'isClearDirectory',
-          message:`already a folder named ${argv._variables.projectName}. clear directory and continue`,
-          default:false
-        }).then((answer)=>{
-          if (answer.isClearDirectory) {
-            rimraf.sync(path.join(path.resolve(),argv._variables.projectName))
-            next(argv,options)
+      process.global.getVersions(versions=>{
+        let version
+        if (options['--version'] == undefined) {
+          version = versions[0]
+        }else{
+          version = options['--version']
+          if (!versions.includes(version)) {
+            throw new Error('incorrect version')
           }
-        })
-        // throw new Error('folder already exist')
-      }else{
-        next(argv,options)
-      }
+        }
+        argv._variables.version = version
+        console.log('selected version : '+version);
+        if (argv._variables.projectName.search(/(\/|\\)/g) != -1) {
+          throw new Error('projectName can not be a path')
+        }else if(fs.existsSync(path.join(path.resolve(),argv._variables.projectName))){
+          var prompt = inquirer.createPromptModule();
+          prompt({
+            type:"confirm",
+            name:'isClearDirectory',
+            message:`already a folder named ${argv._variables.projectName}. clear directory and continue`,
+            default:false
+          }).then((answer)=>{
+            if (answer.isClearDirectory) {
+              rimraf.sync(path.join(path.resolve(),argv._variables.projectName))
+              next(argv,options)
+            }
+          })
+        }else{
+          next(argv,options)
+        }
+      })
     },
     handler:function(argv,options){
-      process.global.getVersions(versions=>{
-        var prompt = inquirer.createPromptModule();
-        prompt({
-          type:'list',
-          name:"version",
-          message:"select version",
-          choices:versions
-        }).then((answer)=>{
-          let version = answer["version"]
-          fetch(`https://github.com/Fyrok1/k/archive/refs/heads/${version}.zip`)
-          .then(res => {
-            let dir = process.global.createTmpFolder();
-            console.log('downloading...');
-            let zipPath = path.join(dir,'repo.zip');
-            const dest = fs.createWriteStream(zipPath);
-            dest.on('close', function() {
-              console.log('unzipping...');
-              var zip = new AdmZip(zipPath);
-              zip.extractAllTo(path.join(dir,'unzip/'),true);
-              console.log('preparing...');
-              rimraf.sync(zipPath)
-              let unzipPath = path.join(dir,'unzip/k-'+version);
-              fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
-              rimraf.sync(path.join(unzipPath,'/generate'));
-              console.log('copying...');
-              let projectPath = path.join(path.resolve(),argv._variables.projectName)
-              fs.mkdirSync(projectPath)
-              fse.copySync(unzipPath,projectPath)
-              console.log('project created to '+projectPath);
-              console.log(`do not forget '$ npm i' before starting`);
-            });
-            res.body.pipe(dest);
-          });
+      let version = argv._variables.version;
+      fetch(`https://github.com/Fyrok1/k/archive/refs/heads/${version}.zip`)
+      .then(res => {
+        let dir = process.global.createTmpFolder();
+        console.log('downloading...');
+        let zipPath = path.join(dir,'repo.zip');
+        const dest = fs.createWriteStream(zipPath);
+        dest.on('close', function() {
+          console.log('unzipping...');
+          var zip = new AdmZip(zipPath);
+          zip.extractAllTo(path.join(dir,'unzip/'),true);
+          console.log('preparing...');
+          rimraf.sync(zipPath)
+          let unzipPath = path.join(dir,'unzip/k-'+version);
+          fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
+          rimraf.sync(path.join(unzipPath,'/generate'));
+          console.log('copying...');
+          let projectPath = path.join(path.resolve(),argv._variables.projectName)
+          fs.mkdirSync(projectPath)
+          fse.copySync(unzipPath,projectPath)
+          console.log('project created to '+projectPath);
+          console.log(`do not forget '$ npm i' before starting`);
         });
-      })
+        res.body.pipe(dest);
+      });
     },
     help:function() {
       process.global.commandHelper(this)

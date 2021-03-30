@@ -18,7 +18,7 @@ module.exports = {
         }
 
         tableData.push([
-          command,
+          `${command}${process.global.commands[command].short ? ', '+process.global.commands[command].short : ''}`,
           process.global.commands[command].usage??' ',
           options.length == 0 ? ' ' : options,
           process.global.commands[command].description??' ',
