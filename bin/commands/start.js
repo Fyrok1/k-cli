@@ -87,7 +87,7 @@ module.exports = {
           fs.mkdirSync(projectPath)
           fse.copySync(unzipPath,projectPath)
           console.log('project created to '+projectPath);
-          console.log(`do not forget '$ npm i' before starting`);
+          console.log(`do not forget 'npm i' before starting`);
         });
         res.body.pipe(dest);
       });

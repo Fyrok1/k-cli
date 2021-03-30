@@ -118,7 +118,7 @@ module.exports = {
           fs.writeFileSync(path.join(projectPath,'k.json'),JSON.stringify(kJson,null,2))
 
           console.log('version changed to '+argv._variables.version);
-          console.log(`do not forget '$ npm i' before starting and check .env.example file for changes`);
+          console.log(`do not forget 'npm i' before starting and check .env.example file for changes`);
         });
         res.body.pipe(dest);
       });
