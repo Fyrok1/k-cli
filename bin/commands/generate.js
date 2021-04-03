@@ -1,6 +1,7 @@
 const fetch = require('node-fetch')
 const path = require('path')
 const fs = require('fs')
+const fse = require('fs-extra')
 
 module.exports = {
   generate:{
@@ -61,17 +62,17 @@ module.exports = {
           filename = filename
           switch (argv._variables.type) {
             case 'controller':
-              filepath = './src/controllers/'+filename+'.controller.ts'
+              filepath = path.join('./src/controllers/',path.dirname(argv._variables.path),filename+'.controller.ts')
               break;
             case 'router':
-              filepath = './src/web/routers/'+filename+'.router.ts'
+              filepath = path.join('./src/web/routers/',path.dirname(argv._variables.path),filename+'.router.ts')
               break;
             case 'model':
-              filepath = './src/models/'+filename+'.model.ts'
+              filepath = path.join('./src/models/',path.dirname(argv._variables.path),filename+'.model.ts')
               break;
           }
           if (filepath != '') {
-            fs.writeFileSync(filepath,content)
+            fse.outputFile(filepath,content)
             console.log(argv._variables.type+' created');
           }
         })
