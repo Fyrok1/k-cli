@@ -52,11 +52,11 @@ module.exports = {
           prompt({
             type:"confirm",
             name:'isClearDirectory',
-            message:`already a folder named ${argv._variables.projectName}. clear directory and continue`,
+            message:`already a folder named ${argv._variables.projectName}. do you want to continue`,
             default:false
           }).then((answer)=>{
             if (answer.isClearDirectory) {
-              rimraf.sync(path.join(path.resolve(),argv._variables.projectName))
+              // rimraf.sync(path.join(path.resolve(),argv._variables.projectName))
               next(argv,options)
             }
           })

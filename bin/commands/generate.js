@@ -53,7 +53,7 @@ module.exports = {
       fetch(`https://raw.githubusercontent.com/Fyrok1/k/${process.global.local.version}/generate/${argv._variables.type}`)
         .then(res=>res.text())
         .then(raw=>{
-          let filename = path.basename(argv._variables.path).toLowerCase()
+          let filename = path.basename(argv._variables.path)
           let content = process.global.replace(raw,{
             capitalizeName:filename.replace(/\b\w/g, l => l.toUpperCase()),
             name:filename
