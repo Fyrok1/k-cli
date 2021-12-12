@@ -1,5 +1,5 @@
 {
-  "name": "@fyrok/k-cli",
+  "name": "@fyrok1/k-cli",
   "version": "0.0.2",
   "description": "Cli for k freamwork",
   "main": "bin/index.js",
