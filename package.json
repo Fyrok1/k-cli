@@ -1,6 +1,6 @@
 {
   "name": "@fyrok1/k-cli",
-  "version": "0.0.2-2",
+  "version": "0.0.2-3",
   "description": "Cli for k freamwork",
   "main": "bin/index.js",
   "bin": {

@@ -6,7 +6,6 @@ const path = require('path');
 const fetch = require('node-fetch');
 const rimraf = require("rimraf");
 
-const version = require('./commands/version');
 const helper = require('./commands/helper');
 const generate = require('./commands/generate');
 const start = require('./commands/start');
@@ -17,9 +16,6 @@ process.global = {
   commands:{
     "new":start.new,
     "generate":generate.generate,
-    "change-version":version.change,
-    "versions":version.list,
-    "version":helper.version,
     "help":helper.help,
   },
   local:false,
