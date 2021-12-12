@@ -5,6 +5,7 @@ const fetch = require('node-fetch')
 const inquirer = require('inquirer');
 var AdmZip = require('adm-zip');
 const rimraf = require('rimraf');
+const child_process = require('child_process');
 
 module.exports = {
   new:{
@@ -83,16 +84,24 @@ module.exports = {
           if (version == "0.0.1") {
             fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
           }else if(version == "0.0.2"){
-            fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/development.env'))
-            fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/production.env'))
+            fs.copyFileSync(path.join(unzipPath,'/example.env'),path.join(unzipPath,'/development.env'))
+            fs.copyFileSync(path.join(unzipPath,'/example.env'),path.join(unzipPath,'/production.env'))
           }
           rimraf.sync(path.join(unzipPath,'/generate'));
           console.log('copying...');
           let projectPath = path.join(path.resolve(),argv._variables.projectName)
           fs.mkdirSync(projectPath)
           fse.copySync(unzipPath,projectPath)
-          console.log('project created to '+projectPath);
-          console.log(`do not forget 'npm i' before starting`);
+          console.log('node_modules installing...');
+          try {
+            child_process.spawnSync('npm',['install'],{
+              cwd:projectPath,
+              stdio: 'inherit',
+            })
+            console.log('project created to '+projectPath);
+          } catch (error) {
+            console.log(error);
+          }
         });
         res.body.pipe(dest);
       });
