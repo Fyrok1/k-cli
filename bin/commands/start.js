@@ -80,7 +80,12 @@ module.exports = {
           console.log('preparing...');
           rimraf.sync(zipPath)
           let unzipPath = path.join(dir,'unzip/k-'+version);
-          fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
+          if (version == "0.0.1") {
+            fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/.env'))
+          }else if(version == "0.0.2"){
+            fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/development.env'))
+            fs.copyFileSync(path.join(unzipPath,'/.env.example'),path.join(unzipPath,'/production.env'))
+          }
           rimraf.sync(path.join(unzipPath,'/generate'));
           console.log('copying...');
           let projectPath = path.join(path.resolve(),argv._variables.projectName)
